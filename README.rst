@@ -35,7 +35,7 @@ Before starting Mopidy, you must add configuration for
 Mopidy-RNZ to your Mopidy configuration file::
 
     [rnz]
-    # TODO: Add example of extension config
+    enabled = true
 
 
 Project resources
