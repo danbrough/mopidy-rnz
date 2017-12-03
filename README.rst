@@ -14,7 +14,7 @@ Mopidy-RNZ
    :target: https://coveralls.io/r/danbrough/mopidy-rnz
    :alt: Test coverage
 
-Mopidy extension for Radio New Zealand content
+Mopidy extension for RNZ content
 
 
 Installation

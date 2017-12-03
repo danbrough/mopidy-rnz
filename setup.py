@@ -18,7 +18,7 @@ setup(
     license='Apache License, Version 2.0',
     author='Dan Brough',
     author_email='dan@danbrough.org',
-    description='Mopidy extension for Radio New Zealand content',
+    description='Mopidy extension for RNZ content',
     long_description=open('README.rst').read(),
     packages=find_packages(exclude=['tests', 'tests.*']),
     zip_safe=False,
