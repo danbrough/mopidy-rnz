@@ -27,7 +27,6 @@ setup(
         'setuptools',
         'Mopidy >= 1.0',
         'Pykka >= 1.1',
-        #'CacheControl >= 0.12.3',
         'requests-cache >= 0.4.13',
     ],
     entry_points={

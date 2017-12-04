@@ -10,8 +10,6 @@ from mopidy import backend,httpclient
 from mopidy.models import Ref, Artist, Album,Track
 import mopidy_rnz
 
-
-
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -43,6 +41,9 @@ class RNZBackend(pykka.ThreadingActor, backend.Backend):
         full_user_agent = httpclient.format_user_agent("%s/%s" % (
           mopidy_rnz.Extension.dist_name,
           mopidy_rnz.__version__))
+
+        logging.debug('user_agent: %s',full_user_agent)
+
         self.session.headers.update({'user-agent': full_user_agent})
 
     def on_start(self):
@@ -68,7 +69,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
             return result
 
         if uri == 'rnz:root':
-            result.append(Ref.album(name='Streams', uri='rnz:streams'))
+            result.append(Ref.directory(name='Streams', uri='rnz:streams'))
             result.append(Ref.directory(name='Podcasts', uri='rnz:podcasts'))
             result.append(Ref.track(name='Latest News Bulletin', uri='rnz:news'))
             return result
@@ -103,7 +104,6 @@ class RNZLibraryProvider(backend.LibraryProvider):
                 logging.error("failed to download %s", podcast_url)
                 return None
             tree = ET.fromstring(r.text.encode('utf-8'))
-            #@_rnz_artist = Artist(name='RNZ')
 
             album= Album(
                 artists = [Artist(name='RNZ')],
@@ -150,12 +150,6 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
         return result
 
-    # def get_images(self, uris):
-    #     logger.warn("RNZLibraryProvider::get_images(): %s", uris)
-    #     # return content.images
-    #     #result = super(RNZLibraryProvider, self).get_images(uris)
-    #     #print(result)
-    #     return {uri: content.images[uri] for uri in uris}
 
     def download(self, url):
         logger.info("RNZLibraryProvider::download() url:%s", url)

@@ -36,6 +36,9 @@ Mopidy-RNZ to your Mopidy configuration file::
 
     [rnz]
     enabled = true
+    # default value for where http pages are cached
+    #http_cache = ~/.rnz_cache
+
 
 
 Project resources

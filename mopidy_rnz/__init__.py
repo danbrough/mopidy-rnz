@@ -30,8 +30,3 @@ class Extension(ext.Extension):
     def setup(self, registry):
         from .backend import RNZBackend
         registry.add('backend', RNZBackend)
-
-        # registry.add('http:static', {
-        #     'name': self.ext_name,
-        #     'path': os.path.join(os.path.dirname(__file__), 'static'),
-        # })

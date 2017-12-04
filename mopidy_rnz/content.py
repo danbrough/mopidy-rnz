@@ -38,8 +38,6 @@ _international_album = Album(
 
 streams = []
 
-
-
 streams.append(Track(
   artists = [_rnz_artist],
   album = _national_album,
@@ -116,9 +114,7 @@ news_track = Track(
   track_no = 1,
 )
 
-#images = {u'rnz:streams:%i'%x[0]: [Image(uri=uri) for uri in x[1].album.images] for x  in enumerate(streams)}
 
-#images[u'rnz:news'] = [Image(uri='http://www.radionz.co.nz/brand-images/rnz-news.jpg'),]
 
 
 
