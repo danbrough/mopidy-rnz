@@ -24,7 +24,7 @@ class Extension(ext.Extension):
 
     def get_config_schema(self):
         schema = super(Extension, self).get_config_schema()
-        schema['cache_dir'] = config.String()
+        schema['http_cache'] = config.String()
         return schema
 
     def setup(self, registry):

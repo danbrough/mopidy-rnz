@@ -27,7 +27,8 @@ setup(
         'setuptools',
         'Mopidy >= 1.0',
         'Pykka >= 1.1',
-        'httplib2 >= 0.10.3'
+        #'CacheControl >= 0.12.3',
+        'requests-cache >= 0.4.13',
     ],
     entry_points={
         'mopidy.ext': [

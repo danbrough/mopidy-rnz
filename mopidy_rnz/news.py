@@ -2,7 +2,6 @@
 from __future__ import unicode_literals,print_function
 
 import hashlib
-import json
 import logging
 import re
 
@@ -28,25 +27,25 @@ Returns the audio url for the latest RNZ news bulletin
 
 
 def get_news_info(download_func):
-    r, content = download_func('http://www.radionz.co.nz/news')
+    r = download_func('http://www.radionz.co.nz/news')
 
-    if r.status != 200:
+    if r.status_code != 200:
         logger.error('Failed to download %s', 'http://www.radionz.co.nz/news')
         return None
 
-    content = content.decode('utf-8')
+    content = r.text
     content = content[content.find('Latest bulletin'):][:100]
     content = content[content.find('X') + 1:]
     content = content[:content.find('"')]
     code = int(content)
     url = prog_url(code)
-    r, content = download_func(url)
+    r = download_func(url)
 
-    if r.status != 200:
+    if r.status_code != 200:
         logger.error("Failed to download: %s", url)
         return None
 
-    data = json.loads(content)
+    data = r.json()
     audio_url = data['item']['audio']['mp3']['url']
     audio_title = data['item']['body']
     audio_title = re.sub(_cleanr, '', audio_title)
@@ -54,5 +53,5 @@ def get_news_info(download_func):
 
 
 if __name__ == '__main__':
-    import httplib2
-    print("news url:", get_news_info(httplib2.Http().request))
+    import requests
+    print("news url:", get_news_info(requests.get))
