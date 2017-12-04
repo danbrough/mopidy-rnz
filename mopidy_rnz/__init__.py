@@ -24,8 +24,6 @@ class Extension(ext.Extension):
 
     def get_config_schema(self):
         schema = super(Extension, self).get_config_schema()
-        #schema['username'] = config.String()
-        #schema['password'] = config.Secret()
         schema['cache_dir'] = config.String()
         return schema
 

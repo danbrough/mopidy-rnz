@@ -1,4 +1,4 @@
-from mopidy.models import Album, Artist, Ref, Track
+from mopidy.models import Album, Artist, Ref, Track,Image
 import logging
 
 logger = logging.getLogger(__name__)
@@ -22,12 +22,6 @@ _news_album = Album(
   artists = [_rnz_artist],
   images = ['http://www.radionz.co.nz/brand-images/rnz-news.jpg'],
   name = 'RNZ News',
-)
-
-_news_album = Album(
-  artists = [_rnz_artist],
-  images = ['http://www.radionz.co.nz/brand-images/rnz-international.jpg'],
-  name = 'RNZ International',
 )
 
 _parliament_album = Album(
@@ -99,7 +93,6 @@ streams.append(Track(
 ))
 
 
-
 streams.append(Track(
   artists = [_rnz_artist],
   album = _international_album,
@@ -116,16 +109,16 @@ streams.append(Track(
   uri = 'http://radionz-ice.streamguys.com/parliament',
 ))
 
+news_track = Track(
+  artists = [_rnz_artist],
+  album = _news_album,
+  name = 'Latest News Bulletin',
+  track_no = 1,
+)
 
-# album = Album(
-      #   artists = [_rnz_artist],
-      #   images = ['http://www.radionz.co.nz/brand-images/rnz-national.jpg'],
-      #   name = 'RNZ National',
-      # )
-      #
-      # track = Track(
-      #   artists=[artist],
-      #   album = album,
-      #   name=  'RNZ National: ' + uri[uri.rfind(':')+1:],
-      #   uri = 'http://radionz-ice.streamguys.com/National_aac128',
-      # )
+#images = {u'rnz:streams:%i'%x[0]: [Image(uri=uri) for uri in x[1].album.images] for x  in enumerate(streams)}
+
+#images[u'rnz:news'] = [Image(uri='http://www.radionz.co.nz/brand-images/rnz-news.jpg'),]
+
+
+
