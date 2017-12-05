@@ -1,13 +1,14 @@
 from __future__ import unicode_literals
 
-import requests
-import requests_cache
 import logging
 import os
 import pykka
 import re
-from mopidy import backend,httpclient
-from mopidy.models import Ref, Artist, Album,Track
+import requests
+import requests_cache
+from mopidy import backend, httpclient
+from mopidy.models import Ref, Artist, Album, Track
+
 import mopidy_rnz
 
 try:
@@ -17,8 +18,8 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-
 from mopidy_rnz import content
+
 
 class RNZBackend(pykka.ThreadingActor, backend.Backend):
     def __init__(self, config, audio):
@@ -35,14 +36,14 @@ class RNZBackend(pykka.ThreadingActor, backend.Backend):
 
         self.session = requests.Session()
         if proxy_config is not None:
-          proxy = httpclient.format_proxy(proxy_config)
-          self.session.proxies.update({'http': proxy, 'https': proxy})
+            proxy = httpclient.format_proxy(proxy_config)
+            self.session.proxies.update({'http': proxy, 'https': proxy})
 
         full_user_agent = httpclient.format_user_agent("%s/%s" % (
-          mopidy_rnz.Extension.dist_name,
-          mopidy_rnz.__version__))
+            mopidy_rnz.Extension.dist_name,
+            mopidy_rnz.__version__))
 
-        logging.debug('user_agent: %s',full_user_agent)
+        logging.debug('user_agent: %s', full_user_agent)
 
         self.session.headers.update({'user-agent': full_user_agent})
 
@@ -62,16 +63,16 @@ class RNZLibraryProvider(backend.LibraryProvider):
     match_podcast_items = re.compile(r'rnz:podcasts:\d+:\d+$')
 
     def browse(self, uri):
-        logger.info("browse() %s for backend: %s", uri,self.backend)
+        logger.info("browse() %s for backend: %s", uri, self.backend)
         result = []
 
         if not uri.startswith('rnz:'):
             return result
 
         if uri == 'rnz:root':
+            result.append(Ref.track(name='Latest News Bulletin', uri='rnz:news'))
             result.append(Ref.directory(name='Streams', uri='rnz:streams'))
             result.append(Ref.directory(name='Podcasts', uri='rnz:podcasts'))
-            result.append(Ref.track(name='Latest News Bulletin', uri='rnz:news'))
             return result
 
         if uri == 'rnz:streams':
@@ -105,10 +106,10 @@ class RNZLibraryProvider(backend.LibraryProvider):
                 return None
             tree = ET.fromstring(r.text.encode('utf-8'))
 
-            album= Album(
-                artists = [Artist(name='RNZ')],
-                images = [podcast['imageURL']],
-                name = podcast['title'],
+            album = Album(
+                artists=[Artist(name='RNZ')],
+                images=[podcast['imageURL']],
+                name=podcast['title'],
             )
 
             for item in tree.iter('item'):
@@ -119,9 +120,9 @@ class RNZLibraryProvider(backend.LibraryProvider):
                 ))
                 self.podcast_items.append(Track(
                     name=title,
-                    album = album,
+                    album=album,
                     uri=item.find('enclosure').get('url'),
-                    comment = item.find('description').text.strip(),
+                    comment=item.find('description').text.strip(),
                 ))
             return result
 
@@ -146,10 +147,9 @@ class RNZLibraryProvider(backend.LibraryProvider):
             return [content.streams[int(uri.split(':')[-1])]]
 
         if self.match_podcast_items.match(uri):
-            return [self.podcast_items[int(uri[uri.rfind(':')+1:])]]
+            return [self.podcast_items[int(uri[uri.rfind(':') + 1:])]]
 
         return result
-
 
     def download(self, url):
         logger.info("RNZLibraryProvider::download() url:%s", url)
@@ -163,4 +163,3 @@ class RNZLibraryProvider(backend.LibraryProvider):
         podcasts = r.json()
         logger.info("RNZ: discovered %d podcasts", len(podcasts))
         return podcasts
-
