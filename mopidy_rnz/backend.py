@@ -56,7 +56,7 @@ class RNZBackend(pykka.ThreadingActor, backend.Backend):
 class RNZLibraryProvider(backend.LibraryProvider):
     root_directory = Ref.directory(uri='rnz:root', name='RNZ')
     PODCASTS_URI = 'https://h1.danbrough.org/data/podcastinfo_v1.json'
-    podcasts = []
+
     podcast_items = []
     match_podcast = re.compile(r'rnz:podcasts:\d+$')
     match_podcast_items = re.compile(r'rnz:podcasts:\d+:\d+$')
@@ -156,12 +156,11 @@ class RNZLibraryProvider(backend.LibraryProvider):
         return self.backend.download(url)
 
     def get_podcasts(self):
-        if self.podcasts: return self.podcasts
         r = self.download(RNZLibraryProvider.PODCASTS_URI)
         if r.status_code != 200:
             logger.error("RNZ: Failed to download %s", RNZLibraryProvider.PODCASTS_URI)
             return []
-        self.podcasts = r.json()
-        logger.info("RNZ: discovered %d podcasts", len(self.podcasts))
-        return self.podcasts
+        podcasts = r.json()
+        logger.info("RNZ: discovered %d podcasts", len(podcasts))
+        return podcasts
 
