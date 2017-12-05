@@ -16,6 +16,8 @@ Mopidy-RNZ
 
 Mopidy extension for RNZ content
 
+This backend extension provides access to the podcasts, live-streams and the latest news bulletin
+
 
 Installation
 ============
