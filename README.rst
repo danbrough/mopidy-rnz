@@ -27,7 +27,7 @@ Install by running::
     pip install Mopidy-RNZ
 
 Or, if available, install the Debian/Ubuntu package from `apt.mopidy.com
-<http://apt.mopidy.com/>`_.
+<http://apt.mopidy.com/>`.
 
 
 Configuration
@@ -53,8 +53,8 @@ Project resources
 Credits
 =======
 
-- Original author: `Dan Brough <https://github.com/danbrough`__
-- Current maintainer: `Dan Brough <https://github.com/danbrough`__
+- Original author: `Dan Brough <https://github.com/danbrough>`_
+- Current maintainer: `Dan Brough <https://github.com/danbrough>`_
 - `Contributors <https://github.com/danbrough/mopidy-rnz/graphs/contributors>`_
 
 
