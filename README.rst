@@ -27,7 +27,7 @@ Install by running::
     pip install Mopidy-RNZ
 
 Or, if available, install the Debian/Ubuntu package from `apt.mopidy.com
-<http://apt.mopidy.com/>`_.
+<http://apt.mopidy.com/>`.
 
 
 Configuration
@@ -53,16 +53,16 @@ Project resources
 Credits
 =======
 
-- Original author: `Dan Brough <https://github.com/danbrough`__
-- Current maintainer: `Dan Brough <https://github.com/danbrough`__
+- Original author: `Dan Brough <https://github.com/danbrough>`_
+- Current maintainer: `Dan Brough <https://github.com/danbrough>`_
 - `Contributors <https://github.com/danbrough/mopidy-rnz/graphs/contributors>`_
 
 
 Changelog
 =========
 
-v0.1.0 (UNRELEASED)
+v0.1.0 
 ----------------------------------------
 
 - Initial release.
-- Basic streams are available but haven't implemented podcasts yet.
+- Streams, podcasts and the latest news bulletin implemented.
