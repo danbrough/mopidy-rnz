@@ -26,8 +26,7 @@ Install by running::
 
     pip install Mopidy-RNZ
 
-Or, if available, install the Debian/Ubuntu package from `apt.mopidy.com
-<http://apt.mopidy.com/>`.
+Or, if available, install the Debian/Ubuntu package from `apt.mopidy.com <http://apt.mopidy.com>`_.
 
 
 Configuration
