@@ -39,6 +39,7 @@ def get_news_info(download_func):
     content = content[:content.find('"')]
     code = int(content)
     url = prog_url(code)
+
     r = download_func(url)
 
     if r.status_code != 200:
@@ -49,7 +50,17 @@ def get_news_info(download_func):
     audio_url = data['item']['audio']['mp3']['url']
     audio_title = data['item']['body']
     audio_title = re.sub(_cleanr, '', audio_title)
-    return audio_title,audio_url
+    duration = 0
+    s = data['item']['duration']
+    i = s.find(u'\u2032')
+    if i > -1:
+        duration = 60*int(s[:i])
+        s = s[i+1:]
+    duration += int(s[:-1])
+
+
+
+    return audio_title,audio_url,duration*1000
 
 
 if __name__ == '__main__':

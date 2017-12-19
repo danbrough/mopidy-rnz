@@ -54,6 +54,19 @@ class RNZBackend(pykka.ThreadingActor, backend.Backend):
         return self.session.get(url)
 
 
+def _duration(s):
+    s = s.split(':')
+    duration = int(s[-1])
+    i = len(s)
+    if i > 1:
+        duration += 60*int(s[-2])
+    if i > 2:
+        duration += 60*60*int(s[-3])
+    return duration
+
+
+
+
 class RNZLibraryProvider(backend.LibraryProvider):
     root_directory = Ref.directory(uri='rnz:root', name='RNZ')
     PODCASTS_URI = 'https://h1.danbrough.org/data/podcastinfo_v1.json'
@@ -61,6 +74,8 @@ class RNZLibraryProvider(backend.LibraryProvider):
     podcast_items = []
     match_podcast = re.compile(r'rnz:podcasts:\d+$')
     match_podcast_items = re.compile(r'rnz:podcasts:\d+:\d+$')
+    NAMESPACES = {'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd'}
+
 
     def browse(self, uri):
         logger.info("browse() %s for backend: %s", uri, self.backend)
@@ -114,6 +129,10 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
             for item in tree.iter('item'):
                 title = item.find('title').text.strip()
+                logger.info("got title %s",title)
+                duration = item.find('itunes:duration',self.NAMESPACES)
+                if duration is not None:
+                    logger.info("got duration %s",duration.text.strip())
                 result.append(Ref.track(
                     name=title,
                     uri='%s:%i' % (uri, len(result)),
@@ -123,6 +142,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
                     album=album,
                     uri=item.find('enclosure').get('url'),
                     comment=item.find('description').text.strip(),
+                    length=_duration(item.find('itunes:duration',self.NAMESPACES).text.strip())*1000
                 ))
             return result
 
@@ -137,8 +157,8 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
         if uri == 'rnz:news':
             from .news import get_news_info
-            title, url = get_news_info(self.download)
-            return [content.news_track.replace(uri=url).replace(name=title)]
+            title, url,duration = get_news_info(self.download)
+            return [content.news_track.replace(uri=url).replace(name=title).replace(length=duration)]
 
         if uri == 'rnz:streams':
             return content.streams
