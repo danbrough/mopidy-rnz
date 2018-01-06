@@ -95,18 +95,18 @@ class RNZLibraryProvider(backend.LibraryProvider):
                 result.append(
                     Ref.track(
                         name=stream.name,
-                        uri='rnz:streams:%i' % len(result)
+                        uri='rnz:stream:%s' % stream.name
                     ))
             return result
 
         if uri == 'rnz:podcasts':
             podcasts = self.get_podcasts()
-            for n in range(len(podcasts)):
-                title = podcasts[n]['title']
+            for podcast in podcasts:
+                title = podcast['title']
                 if title.startswith('RNZ: '): title = title[4:]
                 result.append(Ref.directory(
                     name=title,
-                    uri='rnz:podcasts:%i' % n
+                    uri='rnz:podcasts:%s' % podcast['uris']
                 ))
             return result
 
@@ -149,7 +149,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
         return []
 
     def lookup(self, uri):
-        logger.info("lookup() %s", uri)
+        logger.debug("lookup() %s", uri)
         result = []
 
         if not uri.startswith('rnz:'):
@@ -163,8 +163,8 @@ class RNZLibraryProvider(backend.LibraryProvider):
         if uri == 'rnz:streams':
             return content.streams
 
-        if uri.startswith('rnz:streams:'):
-            return [content.streams[int(uri.split(':')[-1])]]
+        if uri.startswith('rnz:stream:'):
+            return [content.stream_map[uri[11:]]]
 
         if self.match_podcast_items.match(uri):
             return [self.podcast_items[int(uri[uri.rfind(':') + 1:])]]

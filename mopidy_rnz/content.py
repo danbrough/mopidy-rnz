@@ -114,6 +114,12 @@ news_track = Track(
   track_no = 1,
 )
 
+stream_map = {}
+for stream in streams:
+  stream_map[stream.name] = stream
+
+
+
 
 
 
