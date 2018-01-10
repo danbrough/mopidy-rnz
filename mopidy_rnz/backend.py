@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 import logging
 import os
 import pykka
-import re
 import requests
 import requests_cache
+from dateutil.parser import parse as parse_date
 from mopidy import backend, httpclient
 from mopidy.models import Ref, Artist, Album, Track
 
@@ -47,8 +47,8 @@ class RNZBackend(pykka.ThreadingActor, backend.Backend):
 
         self.session.headers.update({'user-agent': full_user_agent})
 
-    def on_start(self):
-        self.library.get_podcasts()
+        # def on_start(self):
+        # self.library.get_podcasts()
 
     def download(self, url):
         return self.session.get(url)
@@ -59,23 +59,21 @@ def _duration(s):
     duration = int(s[-1])
     i = len(s)
     if i > 1:
-        duration += 60*int(s[-2])
+        duration += 60 * int(s[-2])
     if i > 2:
-        duration += 60*60*int(s[-3])
+        duration += 60 * 60 * int(s[-3])
     return duration
 
 
+class PodcastInfo:
+    pass
 
 
 class RNZLibraryProvider(backend.LibraryProvider):
     root_directory = Ref.directory(uri='rnz:root', name='RNZ')
     PODCASTS_URI = 'https://h1.danbrough.org/data/podcastinfo_v1.json'
-
-    podcast_items = []
-    match_podcast = re.compile(r'rnz:podcasts:\d+$')
-    match_podcast_items = re.compile(r'rnz:podcasts:\d+:\d+$')
-    NAMESPACES = {'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd'}
-
+    NAMESPACES = {'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'}
+    podcast_items = {}
 
     def browse(self, uri):
         logger.info("browse() %s for backend: %s", uri, self.backend)
@@ -91,34 +89,31 @@ class RNZLibraryProvider(backend.LibraryProvider):
             return result
 
         if uri == 'rnz:streams':
-            for stream in content.streams:
-                result.append(
-                    Ref.track(
-                        name=stream.name,
-                        uri='rnz:stream:%s' % stream.name
-                    ))
-            return result
+            return [
+                Ref.track(
+                    name=stream.name,
+                    uri='rnz:stream:%s' % stream.name
+                ) for stream in content.streams
+            ]
 
         if uri == 'rnz:podcasts':
-            podcasts = self.get_podcasts()
-            for podcast in podcasts:
-                title = podcast['title']
-                if title.startswith('RNZ: '): title = title[4:]
-                result.append(Ref.directory(
-                    name=title,
-                    uri='rnz:podcasts:%s' % podcast['uris']
-                ))
-            return result
+            return [
+                Ref.directory(
+                    name=podcast['title'],
+                    uri='rnz:podcast:%s' % podcast['title']
+                ) for podcast in self.get_podcasts()
+            ]
 
-        if self.match_podcast.match(uri):
-            index = int(uri[uri.rfind(':') + 1:])
-            self.podcast_items = []
-            podcast = self.get_podcasts()[index]
+        if uri.startswith('rnz:podcast:'):
+            title = uri[12:]
+            podcast = self.podcasts_map[title]
             podcast_url = podcast['urls']
             r = self.download(podcast_url)
+
             if r.status_code != 200:
                 logging.error("failed to download %s", podcast_url)
                 return None
+
             tree = ET.fromstring(r.text.encode('utf-8'))
 
             album = Album(
@@ -129,27 +124,47 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
             for item in tree.iter('item'):
                 title = item.find('title').text.strip()
-                logger.info("got title %s",title)
-                duration = item.find('itunes:duration',self.NAMESPACES)
+                logger.info("got title %s", title)
+
+                duration = item.find('itunes:duration', self.NAMESPACES)
+
                 if duration is not None:
-                    logger.info("got duration %s",duration.text.strip())
+                    logger.info("got duration %s", duration.text.strip())
+
+                track_url = item.find('enclosure').get('url')
+
                 result.append(Ref.track(
                     name=title,
-                    uri='%s:%i' % (uri, len(result)),
+                    uri='rnz:podcast_item:%s' % track_url,
                 ))
-                self.podcast_items.append(Track(
+
+                track_date = item.find('pubDate').text.strip()
+                logger.info("track_date: %s",track_date)
+                track_date = parse_date(track_date).strftime('%Y-%m-%d')
+
+                self.podcast_items[track_url] = Track(
                     name=title,
                     album=album,
-                    uri=item.find('enclosure').get('url'),
+                    artists=[Artist(name='RNZ')],
+                    uri=track_url,
                     comment=item.find('description').text.strip(),
-                    length=_duration(item.find('itunes:duration',self.NAMESPACES).text.strip())*1000
-                ))
+                    date=track_date,
+                    length=_duration(
+                        item.find('itunes:duration', self.NAMESPACES).text.strip()) * 1000
+                )
             return result
 
         return []
 
+    # def get_images(self, uris):
+    #     logger.info('get_images(): %s',uris)
+    #     # if len(uris) == 0 and uris[0] == 'rnz:news':
+    #     #     pass
+    #
+    #     return super(RNZLibraryProvider,self).get_images(uris)
+
     def lookup(self, uri):
-        logger.debug("lookup() %s", uri)
+        logger.info("lookup() %s", uri)
         result = []
 
         if not uri.startswith('rnz:'):
@@ -157,8 +172,9 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
         if uri == 'rnz:news':
             from .news import get_news_info
-            title, url,duration = get_news_info(self.download)
-            return [content.news_track.replace(uri=url).replace(name=title).replace(length=duration)]
+            title, url, duration = get_news_info(self.download)
+            return [
+                content.news_track.replace(uri=url).replace(name=title).replace(length=duration)]
 
         if uri == 'rnz:streams':
             return content.streams
@@ -166,8 +182,11 @@ class RNZLibraryProvider(backend.LibraryProvider):
         if uri.startswith('rnz:stream:'):
             return [content.stream_map[uri[11:]]]
 
-        if self.match_podcast_items.match(uri):
-            return [self.podcast_items[int(uri[uri.rfind(':') + 1:])]]
+        if uri.startswith('rnz:podcast:'):
+            return [self.podcasts_map[uri[12:]]]
+
+        if uri.startswith('rnz:podcast_item:'):
+            return [self.podcast_items[uri[17:]]]
 
         return result
 
@@ -181,5 +200,10 @@ class RNZLibraryProvider(backend.LibraryProvider):
             logger.error("RNZ: Failed to download %s", RNZLibraryProvider.PODCASTS_URI)
             return []
         podcasts = r.json()
-        logger.info("RNZ: discovered %d podcasts", len(podcasts))
-        return podcasts
+        for podcast in podcasts:
+            title = podcast['title']
+            if title.startswith('RNZ: '): podcast['title'] = title[4:].strip()
+        self.podcasts = sorted(podcasts, key=lambda x: x['title'])
+        self.podcasts_map = {podcast['title']: podcast for podcast in self.podcasts}
+        logger.info("RNZ: Discovered %d podcasts", len(podcasts))
+        return self.podcasts
