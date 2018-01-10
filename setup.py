@@ -28,6 +28,7 @@ setup(
         'Mopidy >= 1.0',
         'Pykka >= 1.1',
         'requests-cache >= 0.4.13',
+	' python_dateutil >= 2.6.1',
     ],
     entry_points={
         'mopidy.ext': [
