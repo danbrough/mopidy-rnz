@@ -65,9 +65,6 @@ def _duration(s):
     return duration
 
 
-class PodcastInfo:
-    pass
-
 
 class RNZLibraryProvider(backend.LibraryProvider):
     root_directory = Ref.directory(uri='rnz:root', name='RNZ')
@@ -76,7 +73,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
     podcast_items = {}
 
     def browse(self, uri):
-        logger.info("browse() %s for backend: %s", uri, self.backend)
+        logger.debug("browse() %s for backend: %s", uri, self.backend)
         result = []
 
         if not uri.startswith('rnz:'):
@@ -124,12 +121,12 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
             for item in tree.iter('item'):
                 title = item.find('title').text.strip()
-                logger.info("got title %s", title)
+                logger.debug("got title %s", title)
 
                 duration = item.find('itunes:duration', self.NAMESPACES)
 
                 if duration is not None:
-                    logger.info("got duration %s", duration.text.strip())
+                    logger.debug("got duration %s", duration.text.strip())
 
                 track_url = item.find('enclosure').get('url')
 
@@ -139,7 +136,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
                 ))
 
                 track_date = item.find('pubDate').text.strip()
-                logger.info("track_date: %s",track_date)
+                logger.debug("track_date: %s",track_date)
                 track_date = parse_date(track_date).strftime('%Y-%m-%d')
 
                 self.podcast_items[track_url] = Track(
@@ -164,7 +161,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
     #     return super(RNZLibraryProvider,self).get_images(uris)
 
     def lookup(self, uri):
-        logger.info("lookup() %s", uri)
+        logger.debug("lookup() %s", uri)
         result = []
 
         if not uri.startswith('rnz:'):
