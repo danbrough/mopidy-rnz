@@ -7,7 +7,7 @@ import requests
 import requests_cache
 from dateutil.parser import parse as parse_date
 from mopidy import backend, httpclient
-from mopidy.models import Ref, Artist, Album, Track
+from mopidy.models import Ref, Artist, Album, Track, Image
 
 import mopidy_rnz
 
@@ -63,7 +63,6 @@ def _duration(s):
     if i > 2:
         duration += 60 * 60 * int(s[-3])
     return duration
-
 
 
 class RNZLibraryProvider(backend.LibraryProvider):
@@ -136,7 +135,7 @@ class RNZLibraryProvider(backend.LibraryProvider):
                 ))
 
                 track_date = item.find('pubDate').text.strip()
-                logger.debug("track_date: %s",track_date)
+                logger.debug("track_date: %s", track_date)
                 track_date = parse_date(track_date).strftime('%Y-%m-%d')
 
                 self.podcast_items[track_url] = Track(
@@ -153,12 +152,13 @@ class RNZLibraryProvider(backend.LibraryProvider):
 
         return []
 
-    # def get_images(self, uris):
-    #     logger.info('get_images(): %s',uris)
-    #     # if len(uris) == 0 and uris[0] == 'rnz:news':
-    #     #     pass
-    #
-    #     return super(RNZLibraryProvider,self).get_images(uris)
+    def get_images(self, uris):
+
+        if len(uris) == 1 and uris[0] == 'rnz:news':
+            return {'rnz:news': [Image(uri='http://www.radionz.co.nz/brand-images/rnz-news.jpg')]}
+
+        return super(RNZLibraryProvider, self).get_images(uris)
+
 
     def lookup(self, uri):
         logger.debug("lookup() %s", uri)
