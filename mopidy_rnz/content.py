@@ -8,31 +8,31 @@ _rnz_artist = Artist(name='RNZ')
 
 _national_album = Album(
   artists = [_rnz_artist],
-  images = ['http://www.radionz.co.nz/brand-images/rnz-national.jpg'],
+#  images = ['http://www.radionz.co.nz/brand-images/rnz-national.jpg'],
   name = 'RNZ National',
 )
 
 _concert_album = Album(
   artists = [_rnz_artist],
-  images = ['http://www.radionz.co.nz/brand-images/rnz-concert.jpg'],
+#  images = ['http://www.radionz.co.nz/brand-images/rnz-concert.jpg'],
   name = 'RNZ Concert',
 )
 
 _news_album = Album(
   artists = [_rnz_artist],
-  images = ['http://www.radionz.co.nz/brand-images/rnz-news.jpg'],
+#  images = ['http://www.radionz.co.nz/brand-images/rnz-news.jpg'],
   name = 'RNZ News',
 )
 
 _parliament_album = Album(
   artists = [_rnz_artist],
-  images = ['http://www.radionz.co.nz/brand-images/rnz-parliament.jpg'],
+#  images = ['http://www.radionz.co.nz/brand-images/rnz-parliament.jpg'],
   name = 'RNZ Parliament',
 )
 
 _international_album = Album(
   artists = [_rnz_artist],
-  images = ['http://www.radionz.co.nz/brand-images/rnz-international.jpg'],
+#  images = ['http://www.radionz.co.nz/brand-images/rnz-international.jpg'],
   name = 'RNZ International',
 )
 
