@@ -1,5 +1,5 @@
 
-from __future__ import unicode_literals,print_function
+
 
 import hashlib
 import logging
@@ -52,7 +52,7 @@ def get_news_info(download_func):
     audio_title = re.sub(_cleanr, '', audio_title)
     duration = 0
     s = data['item']['duration']
-    i = s.find(u'\u2032')
+    i = s.find('\u2032')
     if i > -1:
         duration = 60*int(s[:i])
         s = s[i+1:]
